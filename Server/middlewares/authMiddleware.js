@@ -1,39 +1,35 @@
+//Importing required resources
 const jwt = require("jsonwebtoken");
 
+// Middleware logic for accessing jwt
+
 const protect = (req, res, next) => {
+  let token;
 
-    let token;
+  if (
+    req.headers.authorization &&
+    req.headers.authorization.startsWith("Bearer")
+  ) {
+    token = req.headers.authorization.split(" ")[1];
+  }
 
-    if (
-        req.headers.authorization &&
-        req.headers.authorization.startsWith("Bearer")
-    ) {
-        token = req.headers.authorization.split(" ")[1];
-    }
+  if (!token) {
+    return res.status(401).json({
+      message: "Not authorized",
+    });
+  }
 
-    if (!token) {
-        return res.status(401).json({
-            message: "Not authorized"
-        });
-    }
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-    try {
+    req.user = decoded;
 
-        const decoded = jwt.verify(
-            token,
-            process.env.JWT_SECRET
-        );
-
-        req.user = decoded;
-
-        next();
-
-    } catch (error) {
-
-        res.status(401).json({
-            message: "Token invalid"
-        });
-    }
+    next();
+  } catch (error) {
+    res.status(401).json({
+      message: "Token invalid",
+    });
+  }
 };
 
 module.exports = { protect };

@@ -1,18 +1,17 @@
+//Importing required resources
 const express = require("express");
 const router = express.Router();
-
 const {
-    createOffer,
-    getOffers,
-    getOfferById,
-    updateOffer,
-    deleteOffer
+  createOffer,
+  getOffers,
+  getOfferById,
+  updateOffer,
+  deleteOffer,
 } = require("../controllers/offerController");
-
 const { protect } = require("../middleware/authMiddleware");
 const { adminOnly } = require("../middleware/adminMiddleware");
 
-
+//Routes for offers
 router.get("/", getOffers);
 
 router.get("/:id", getOfferById);

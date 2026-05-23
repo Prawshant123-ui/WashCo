@@ -86,3 +86,30 @@ const getAdminBooking = async (req, res) => {
 };
 
 //Update booking status
+
+const updateBooking = async (req, res) => {
+  try {
+    const booking = await Booking.findById(req.params.id);
+
+    if (!booking) {
+      res.status(404).json({ message: "Booking not found!!" });
+    }
+
+    booking.status = req.body.status;
+
+    const updated = await booking.save();
+    res.json(updated);
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
+    });
+  }
+};
+
+
+module.exports = {
+    createBooking,
+    getMyBookings,
+    getAllBookings,
+    updateBookingStatus
+};

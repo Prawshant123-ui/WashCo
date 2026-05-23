@@ -5,8 +5,10 @@ require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const connectDB = require("./config/db");
-const authRoutes = require("./routes/authRouter");
+const { apiLimiter } = require("./middleware/rateLimiter");
+const authRoutes = require("./routes/authRoutes");
 const offerRoutes = require("./routes/offerRoutes");
+const bookingRoutes=require("./routes/bookingRoutes")
 
 //Initializing Express
 const app = express();
@@ -15,13 +17,18 @@ const app = express();
 connectDB();
 
 //Applied CORS for Security
-app.use(cors());
+app.use(cors({
+    origin: "http://localhost:3000",
+    credentials: true
+}));
+app.use(apiLimiter);
 
 app.use(express.json());
 
 // Using routes as API
 app.use("/api/auth", authRoutes);
 app.use("/api/offers", offerRoutes);
+app.use("/api/bookings", bookingRoutes);
 
 // Server PORT
 const PORT = process.env.PORT || 4000;

@@ -18,9 +18,11 @@ const getAllOffer = async (req, res) => {
     const limit = Number(req.query.limit) || 10;
     const skip = (page - 1) * limit;
 
-    const total = await Offer.countDocuments({ isActive: true });
+    // If admin=true query param, show all; otherwise only active
+    const filter = req.query.admin === "true" ? {} : { isActive: true };
 
-    const offers = await Offer.find({ isActive: true })
+    const total = await Offer.countDocuments(filter);
+    const offers = await Offer.find(filter)
       .skip(skip)
       .limit(limit)
       .sort({ createdAt: -1 });
@@ -32,9 +34,7 @@ const getAllOffer = async (req, res) => {
       offers,
     });
   } catch (error) {
-    return res.status(500).json({
-      message: error.message,
-    });
+    return res.status(500).json({ message: error.message });
   }
 };
 

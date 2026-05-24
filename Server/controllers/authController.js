@@ -8,20 +8,22 @@ const registerUser = async (req, res) => {
   try {
     const { name, email, password } = req.body;
 
-    const existingUser = await User.findOne({ email });
+    // Block registration with the reserved admin email
+    if (email === process.env.ADMIN_EMAIL) {
+      return res.status(403).json({ message: "This email is not allowed for registration." });
+    }
 
+    const existingUser = await User.findOne({ email });
     if (existingUser) {
       return res.status(400).json({ message: "User already exists!!" });
     }
 
     const hashedPassword = await bcrypt.hash(password, 12);
+    const role = "user"; // always force user, never trust req.body.role
+    const user = await User.create({ name, email, password: hashedPassword, role });
 
-    const user = await User.create({ name, email, password: hashedPassword });
-    
-    // Do not return password in response
     const userResponse = user.toObject();
     delete userResponse.password;
-
     return res.status(201).json(userResponse);
   } catch (error) {
     return res.status(500).json({ message: error.message });

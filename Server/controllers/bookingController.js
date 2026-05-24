@@ -1,20 +1,21 @@
-//Importing required resources
+// Importing required resources
 const Booking = require("../models/bookingModel");
+const Offer = require("../models/offerModel");
 
-//Create Booking
+// Create Booking
 const createBooking = async (req, res) => {
   try {
-    const { offer, vehicleType, vehicleModel, vehicleNumber, washType } =
-      req.body;
+    const { offer, vehicleType, vehicleModel, vehicleNumber, washType } = req.body;
 
-    const existingOffer = await offer.findById(req.params.id);
-
-    if (existingOffer) {
-      res.status(404).json({ message: "Offer already exists!!" });
+    // Check if the specified offer exists
+    const existingOffer = await Offer.findById(offer);
+    if (!existingOffer) {
+      return res.status(404).json({ message: "Offer not found!!" });
     }
+
     const image = req.file ? req.file.path : "";
 
-    const booking = await offer.create({
+    const booking = await Booking.create({
       user: req.user.id,
       offer,
       vehicleType,
@@ -23,32 +24,31 @@ const createBooking = async (req, res) => {
       washType,
       image,
     });
-    res.status(201).json(booking);
+
+    return res.status(201).json(booking);
   } catch (error) {
-    res.status(500).json({
+    return res.status(500).json({
       message: error.message,
     });
   }
 };
 
-//Get All Bookings(User Panel)
-
+// Get All Bookings (User Panel)
 const getUserBooking = async (req, res) => {
   try {
-    const booking = await Booking.find({ user: req.user.id })
-      .populate(offer)
+    const bookings = await Booking.find({ user: req.user.id })
+      .populate("offer")
       .sort({ createdAt: -1 });
 
-    res.json(booking);
+    return res.json(bookings);
   } catch (error) {
-    res.status(500).json({
+    return res.status(500).json({
       message: error.message,
     });
   }
 };
 
-// Get All booking (Admni Panel)
-
+// Get All Booking (Admin Panel)
 const getAdminBooking = async (req, res) => {
   try {
     const page = Number(req.query.page) || 1;
@@ -65,51 +65,53 @@ const getAdminBooking = async (req, res) => {
       filter.vehicleType = req.query.vehicleType;
     }
 
-    const booking = await Booking.countDocuments(filter)
+    const total = await Booking.countDocuments(filter);
+
+    const bookings = await Booking.find(filter)
       .populate("user", "name email")
       .populate("offer")
       .sort({ createdAt: -1 })
       .limit(limit)
       .skip(skip);
 
-    res.json({
+    return res.json({
       page,
       totalPages: Math.ceil(total / limit),
       total,
       bookings,
     });
   } catch (error) {
-    res.status(500).json({
+    return res.status(500).json({
       message: error.message,
     });
   }
 };
 
-//Update booking status
-
+// Update booking status
 const updateBooking = async (req, res) => {
   try {
     const booking = await Booking.findById(req.params.id);
 
     if (!booking) {
-      res.status(404).json({ message: "Booking not found!!" });
+      return res.status(404).json({ message: "Booking not found!!" });
     }
 
-    booking.status = req.body.status;
+    if (req.body.status) {
+      booking.status = req.body.status;
+    }
 
     const updated = await booking.save();
-    res.json(updated);
+    return res.json(updated);
   } catch (error) {
-    res.status(500).json({
+    return res.status(500).json({
       message: error.message,
     });
   }
 };
 
-
 module.exports = {
-    createBooking,
-    getMyBookings,
-    getAllBookings,
-    updateBookingStatus
+  createBooking,
+  getMyBookings: getUserBooking,
+  getAllBookings: getAdminBooking,
+  updateBookingStatus: updateBooking
 };

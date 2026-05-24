@@ -1,4 +1,4 @@
-//Importing required resources
+// Importing required resources
 const express = require("express");
 const router = express.Router();
 const {
@@ -8,10 +8,10 @@ const {
   updateOffer,
   deleteOffer,
 } = require("../controllers/offerController");
-const { protect } = require("../middleware/authMiddleware");
-const { adminOnly } = require("../middleware/adminMiddleware");
+const { protect } = require("../middlewares/authMiddleware");
+const { adminOnly } = require("../middlewares/adminMiddleware");
 
-//Routes for offers
+// Routes for offers
 router.get("/", getOffers);
 
 router.get("/:id", getOfferById);

@@ -1,46 +1,42 @@
 const express = require("express");
-
 const router = express.Router();
 
 const {
-    createBooking,
-    getMyBookings,
-    getAllBookings,
-    updateBookingStatus
+  createBooking,
+  getMyBookings,
+  getAllBookings,
+  updateBookingStatus
 } = require("../controllers/bookingController");
 
-const { protect } = require("../middleware/authMiddleware");
-
-const { adminOnly } = require("../middleware/adminMiddleware");
-
-const upload = require("../middleware/uploadMiddleware");
-
-
+const { protect } = require("../middlewares/authMiddleware");
+const { adminOnly } = require("../middlewares/adminMiddleware");
+const upload = require("../middlewares/uploadMiddleware");
 
 router.post(
-    "/",
-    protect,
-    upload.single("image"),
-    createBooking
+  "/",
+  protect,
+  upload.single("image"),
+  createBooking
 );
 
 router.get(
-    "/my-bookings",
-    protect,
-    getMyBookings
+  "/my-bookings",
+  protect,
+  getMyBookings
 );
+
 router.get(
-    "/admin",
-    protect,
-    adminOnly,
-    getAllBookings
+  "/admin",
+  protect,
+  adminOnly,
+  getAllBookings
 );
 
 router.put(
-    "/:id/status",
-    protect,
-    adminOnly,
-    updateBookingStatus
+  "/:id/status",
+  protect,
+  adminOnly,
+  updateBookingStatus
 );
 
 module.exports = router;

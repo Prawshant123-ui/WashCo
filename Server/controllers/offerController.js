@@ -1,109 +1,104 @@
-//Importing required resources
+// Importing required resources
 const Offer = require("../models/offerModel");
 
 // Create Offer
-
 const createOffer = async (req, res) => {
   try {
     const offer = await Offer.create(req.body);
-
-    res.status(201).json(offer);
+    return res.status(201).json(offer);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    return res.status(500).json({ message: error.message });
   }
 };
 
-//Read All Offer with pagination
-
+// Read All Offer with pagination
 const getAllOffer = async (req, res) => {
   try {
     const page = Number(req.query.page) || 1;
     const limit = Number(req.query.limit) || 10;
     const skip = (page - 1) * limit;
 
-    const total = await Offer.countDocuments();
+    const total = await Offer.countDocuments({ isActive: true });
 
-    const offer = await Offer.findOne({ isActive: true })
+    const offers = await Offer.find({ isActive: true })
       .skip(skip)
       .limit(limit)
       .sort({ createdAt: -1 });
 
-    res.json({
+    return res.json({
       page,
       totalPages: Math.ceil(total / limit),
-      offer,
+      total,
+      offers,
     });
   } catch (error) {
-    res.status(500).json({
+    return res.status(500).json({
       message: error.message,
     });
   }
 };
 
-//Read Single offer
-
+// Read Single offer
 const getSingleOffer = async (req, res) => {
   try {
     const offer = await Offer.findById(req.params.id);
 
     if (!offer) {
-      res.status(404).json({ message: "Thers's no any offer" });
+      return res.status(404).json({ message: "There's no such offer" });
     }
 
-    res.json(offer);
+    return res.json(offer);
   } catch (error) {
-    res.status(500).json({
+    return res.status(500).json({
       message: error.message,
     });
   }
 };
 
-//Update offer
-
+// Update offer
 const updateOffer = async (req, res) => {
   try {
     const offer = await Offer.findById(req.params.id);
 
     if (!offer) {
-      res.status(404).json({ message: "Thers's no any offer" });
+      return res.status(404).json({ message: "There's no such offer" });
     }
 
     Object.assign(offer, req.body);
 
     const updated = await offer.save();
 
-    res.json(updated);
+    return res.json(updated);
   } catch (error) {
-    res.status(500).json({
+    return res.status(500).json({
       message: error.message,
     });
   }
 };
 
-//Delete Offer
-
+// Delete Offer
 const deleteOffer = async (req, res) => {
   try {
     const offer = await Offer.findById(req.params.id);
 
     if (!offer) {
-      res.status(404).json({ message: "Thers's no any offer" });
+      return res.status(404).json({ message: "There's no such offer" });
     }
 
     await offer.deleteOne();
 
-    res.json({ message: "Offer deleted!!" });
+    return res.json({ message: "Offer deleted!!" });
   } catch (error) {
-    res.status(500).json({
+    return res.status(500).json({
       message: error.message,
     });
   }
 };
 
-exports.module = {
+module.exports = {
   createOffer,
-  getAllOffer,
-  getSingleOffer,
+  getOffers: getAllOffer,
+  getOfferById: getSingleOffer,
   updateOffer,
   deleteOffer,
 };

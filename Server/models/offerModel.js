@@ -22,7 +22,7 @@ const offerSchema = new mongoose.Schema(
       required: true,
     },
     duration: {
-      required: String,
+      type: String,
     },
     isActive: {
       type: Boolean,
@@ -34,4 +34,4 @@ const offerSchema = new mongoose.Schema(
   },
 );
 
-exports.module = mongoose.model("Offer", offerSchema);
+module.exports = mongoose.model("Offer", offerSchema);

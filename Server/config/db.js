@@ -1,13 +1,14 @@
-//Database setup for data storage in MongoDB Atlas using Mongoose
 const mongoose = require("mongoose");
 
-const connectDB = async (req, res) => {
+const connectDB = async () => {
   try {
-    await mongoose.connect(process.env.MONO_URI);
-
+    await mongoose.connect(process.env.MONGO_URI, {
+      serverSelectionTimeoutMS: 5000,
+      family: 4  // Force IPv4 — fixes most DNS issues on Windows
+    });
     console.log("Database connected successfully!!");
   } catch (error) {
-    console.log(error.message);
+    console.log("DB Error:", error.message);
     process.exit(1);
   }
 };
